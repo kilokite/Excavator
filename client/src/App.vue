@@ -23,6 +23,7 @@ console.log(routes);
 		<v-list-item link title="项目管理" prepend-icon="mdi-folder-multiple" to="/projects"></v-list-item>
 		<v-list-item link title="自动检查管理" prepend-icon="mdi-robot" to="/auto-check"></v-list-item>
 		<v-list-item link title="报告管理" prepend-icon="mdi-file-document-multiple" to="/reports"></v-list-item>
+		<v-list-item link title="AI 记忆" prepend-icon="mdi-brain" to="/ai-memory"></v-list-item>
 		<v-list-item link title="关于" prepend-icon="mdi-information" to="/about"></v-list-item>
 		</template>
 	</Normal>

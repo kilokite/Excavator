@@ -33,7 +33,7 @@ function getLocalIPv4(): string | null {
 }
 
 // 判断是否是 dev 环境，优先使用可配置的 FRONTEND_PORT
-const PORT = Number(process.env.FRONTEND_PORT) || (process.env.NODE_ENV === 'development' ? 43421 : 43431);
+const PORT = Number(process.env.FRONTEND_PORT) || (process.env.NODE_ENV === 'development' ? 23421 : 13431);
 
 /**
  * 计算默认前端地址：

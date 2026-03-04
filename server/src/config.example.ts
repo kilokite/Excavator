@@ -3,7 +3,7 @@
 // 1. 复制本文件为 config.ts
 // 2. 在本地的 config.ts 中填写真实配置（该文件已在 .gitignore 中被忽略）
 
-export const PORT = 43431;
+export const PORT = 13431;
 
 // OpenAI / DeepSeek API Key
 export const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY';

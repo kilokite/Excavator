@@ -9,7 +9,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0', // 允许外部访问
-    port: 13421, // 固定端口，避免自动换端口
+    port: 23421, // 固定端口，避免自动换端口
     strictPort: true, // 端口被占用时直接报错，便于排查
   },
   plugins: [vue(), Pages(), vueDevTools({

@@ -4,6 +4,7 @@ import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { fetchProject } from '../../utils/gitTools.js';
 import { getCommandContext } from '../commandContext.js';
+import { addMessageToHistory } from '../../utils/conversationHistory.js';
 
 /**
  * 获取 projects 目录的根路径
@@ -114,11 +115,13 @@ function formatOutput(output: string, maxLength: number = 2000): string {
 }
 
 /**
- * 统一回复工具
+ * 统一回复工具（同时写入对话记忆）
  */
 async function reply(text: string): Promise<void> {
     const ctx = getCommandContext();
     await ctx.replyText(text);
+    const chatId = ctx.rawEvent?.message?.chat_id;
+    if (chatId) addMessageToHistory(chatId, 'assistant', text);
 }
 
 /**

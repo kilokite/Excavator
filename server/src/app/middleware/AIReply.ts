@@ -56,13 +56,17 @@ async function handleFunctionCall(
             return result;
         }
 
-        // send_message / send_image 需要依赖当前会话上下文（ctx）执行发送
+        // send_message / send_image 需要依赖当前会话上下文（ctx）执行发送，并写入记忆
+        const targetChatId = functionArgs.chatId || ctx.rawEvent?.message?.chat_id;
         if (functionName === 'send_message') {
             const result = await handler(
                 functionArgs.text,
                 functionArgs.chatId, // 可能是 undefined
                 ctx
             );
+            if (targetChatId && typeof result === 'string' && result.includes('已发送')) {
+                addMessageToHistory(targetChatId, 'assistant', functionArgs.text);
+            }
             return result;
         }
 
@@ -72,6 +76,9 @@ async function handleFunctionCall(
                 functionArgs.chatId, // 可能是 undefined
                 ctx
             );
+            if (targetChatId && typeof result === 'string' && result.includes('已发送')) {
+                addMessageToHistory(targetChatId, 'assistant', `[已发送图片: ${functionArgs.fileName}]`);
+            }
             return result;
         }
         

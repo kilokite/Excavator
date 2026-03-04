@@ -1,4 +1,5 @@
 import { getCommandContext } from '../commandContext.js';
+import { addMessageToHistory } from '../../utils/conversationHistory.js';
 import {
     getReportById,
     getReportByCommit,
@@ -9,11 +10,13 @@ import {
 } from '../../../utils/reportDbService.js';
 
 /**
- * 统一回复工具
+ * 统一回复工具（同时写入对话记忆）
  */
 async function reply(text: string): Promise<void> {
     const ctx = getCommandContext();
     await ctx.replyText(text);
+    const chatId = ctx.rawEvent?.message?.chat_id;
+    if (chatId) addMessageToHistory(chatId, 'assistant', text);
 }
 
 /**

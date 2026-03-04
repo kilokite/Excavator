@@ -5,6 +5,7 @@ import { extractReportSections } from '../../utils/reportSections.js';
 import { sendCardMessage } from '../../services/larkService.js';
 import { createCheckCommitCard, createErrorCard } from '../../messages/cards/factory.js';
 import { getCommandContext } from '../commandContext.js';
+import { addMessageToHistory } from '../../utils/conversationHistory.js';
 
 // 重试配置
 const MAX_RETRY_ATTEMPTS = 3; // 最大重试次数
@@ -179,8 +180,11 @@ export async function handleCheckCommit(params: CheckCommitParams): Promise<void
     console.log(`执行 checkCommit 指令: projectId=${projectId}, commitHash=${commitHash}`);
 
     // 发送"正在处理"消息
-    await ctx.replyText(`正在检查提交 ${commitHash}...`);
-    
+    const statusText = `正在检查提交 ${commitHash}...`;
+    await ctx.replyText(statusText);
+    const chatId = ctx.rawEvent?.message?.chat_id;
+    if (chatId) addMessageToHistory(chatId, 'assistant', statusText);
+
     // 执行代码审查（带重试机制）
     await checkCommitWithRetry(ctx, projectId, commitHash);
 }

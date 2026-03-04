@@ -6,6 +6,7 @@ import reports from './reports.js';
 import git from './git.js';
 import autoCheck from './autoCheck.js';
 import stats from './stats.js';
+import memory from './memory.js';
 const appRouter = router({
     hello: publicPro.input(z.string()).query(({ input }) => {
         return `Hello, ${input}!`
@@ -19,6 +20,7 @@ const appRouter = router({
     git,
     autoCheck,
     stats,
+    memory,
 })
 export default appRouter;
 export type AppRouter = typeof appRouter;
