@@ -1,0 +1,17 @@
+{
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules"],
+    "compilerOptions": {
+        "target": "ES2023",
+        "module": "nodeNext",
+        "moduleResolution": "nodeNext",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "../dist",
+        "allowImportingTsExtensions": false,
+        "resolveJsonModule": true,
+        "declaration": false,
+        "sourceMap": false
+    }
+}

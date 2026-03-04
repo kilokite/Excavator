@@ -1,0 +1,21 @@
+{
+  "name": "rpc-init",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "build": "pnpm --filter ./server build && pnpm --filter ./client build && node scripts/build.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "pnpm -r --parallel run dev",
+    "dev:server": "pnpm run dev --filter ./server",
+    "dev:client": "pnpm run dev --filter ./client"
+  },
+  "author": "zocsrd",
+  "license": "ISC",
+  "dependencies": {
+  }
+}

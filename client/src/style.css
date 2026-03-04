@@ -1,0 +1,76 @@
+@import 'vuetify/styles';
+
+/* =========================
+   Global design baseline
+   ========================= */
+:root {
+  --ui-bg: #ffffff;
+  --ui-bg-muted: rgba(0, 0, 0, 0.02);
+  --ui-border: rgba(0, 0, 0, 0.12);
+  --ui-border-soft: rgba(0, 0, 0, 0.08);
+  --ui-text: rgba(0, 0, 0, 0.82);
+  --ui-text-muted: rgba(0, 0, 0, 0.60);
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  font-size: 14px;
+}
+
+/* Vuetify: remove default shadows (admin/line-based style) */
+.v-application,
+.v-application__wrap {
+  background: var(--ui-bg);
+}
+
+.v-card,
+.v-app-bar,
+.v-navigation-drawer,
+.v-sheet {
+  box-shadow: none !important;
+}
+
+/* Provide subtle borders instead of shadows */
+.v-card {
+  border: 1px solid var(--ui-border);
+}
+
+.v-app-bar {
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.v-navigation-drawer {
+  border-right: 1px solid var(--ui-border);
+}
+
+/* Slightly denser default text */
+.v-btn,
+.v-field,
+.v-list-item-title,
+.v-list-item-subtitle {
+  letter-spacing: 0.1px;
+}
+
+/*
+  进入和离开动画可以使用不同
+  持续时间和速度曲线。
+*/
+.slide-fade-enter-active {
+    transition: all 0.1s ease-out;
+  }
+  
+  .slide-fade-leave-active {
+    /* transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1); */
+  }
+  
+  .slide-fade-enter-from,
+  .slide-fade-leave-to {
+    transform: translateX(20px);
+    opacity: 0;
+  }

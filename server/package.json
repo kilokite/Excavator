@@ -1,0 +1,33 @@
+{
+  "name": "@zkit/server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/_app.ts",
+  "types": "src/_app.ts",
+  "exports": {
+    ".": "./src/_app.ts"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.55.0",
+    "@trpc/server": "^11.5.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^12.5.0",
+    "commander": "^12.1.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "openai": "^6.9.1",
+    "tsx": "^4.20.5",
+    "zod": "^4.1.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "tsx": "^4.20.5"
+  }
+}
