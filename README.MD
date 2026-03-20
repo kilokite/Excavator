@@ -1,198 +1,231 @@
 # 代码审查挖掘机 - Excavator
 
-> README 由AI生成，随后补全
-
-## 简介
-
-**挖掘机** 是一个前后端分离的飞书自动回复机器人系统，专注于代码审查和提交分析。通过飞书群聊，用户可以：
-
-- 对指定项目的 Git 提交进行 AI 代码审查
-- 管理多个代码仓库的审查配置
-- 查看结构化审查报告
-- 配置定时自动检查任务
-- 通过自然语言或命令与机器人交互
+一个面向飞书群聊的 AI 代码审查机器人，提供「消息机器人 + Web 管理台 + 报告存储」一体化能力。  
+当前项目为 Monorepo：`server`（Express + tRPC）和 `client`（Vue 3 + Vuetify）。
 
 ![预览](./docs/assets/d033e22ae3-1772469123648-0a833a44-4d89-413c-8111-b13412f96175.png)
 ![预览2](./docs/assets/1.png)
-## 核心功能
 
+## 项目简介
 
-| 功能         | 说明                                               |
-| ---------- | ------------------------------------------------ |
-| **提交检查**   | 对指定 `projectId` + `commitHash` 进行 AI 代码审查，生成详细报告 |
-| **项目管理**   | 添加/编辑/删除项目配置，管理本地代码仓库路径                          |
-| **报告管理**   | 查看历史审查报告，支持 Markdown 渲染与高亮                       |
-| **自动检查**   | 定时扫描项目新提交并自动触发审查                                 |
-| **Git 操作** | 支持 `status`、`log`、`branch`、`diff` 等 Git 命令       |
-| **智能对话**   | 通过 Function Calling 支持 AI 驱动的自然语言交互              |
-| **统计看板**   | 消息处理、Commit 检查、报告生成等统计数据展示                       |
+挖掘机用于在团队协作场景里，把「代码提交检查」和「群聊机器人交互」串成完整闭环：
 
+- 在飞书群里发命令即可触发指定仓库提交审查
+- 自动保存报告并支持 Web 页面检索、筛选、追溯
+- 支持定时自动检查，减少人工轮询成本
+- 支持 Function Calling 工具化操作（项目、报告、Git、搜索、消息等）
+- 提供 tRPC API，便于前端和后续扩展能力复用
+
+## 核心能力
+
+| 模块 | 说明 |
+| --- | --- |
+| 提交审查 | 对指定 `projectId` + `commitHash` 生成 AI 代码审查报告 |
+| 项目管理 | 项目列表、项目配置、远程仓库信息、项目搜索与删除 |
+| 报告中心 | 报告列表、分页筛选、作者筛选、摘要高亮、详情查看 |
+| 自动检查 | 按项目轮询最新提交并自动生成报告（可全局开关） |
+| 飞书机器人 | 命令交互 + 普通对话，支持 Function Calling 工具调用 |
+| Git 工具 | 状态、日志、分支、diff、fetch 等仓库操作 |
+| 运行统计 | 消息处理、报告生成、工具调用等统计接口 |
+| AI 记忆管理 | 会话历史快照与清空（受鉴权保护） |
 
 ## 技术栈
 
+| 层级 | 技术 |
+| --- | --- |
+| 前端 | Vue 3 + TypeScript + Vuetify + Pinia + Vue Router + Vite |
+| 后端 | Node.js + Express + tRPC + TypeScript |
+| 数据 | SQLite（`better-sqlite3`） |
+| AI | OpenAI SDK（当前默认接 DeepSeek Base URL） |
+| 机器人 | 飞书 Lark WebSocket SDK |
+| 工程化 | pnpm workspace（根脚本统一调度） |
 
-| 层级      | 技术                                                |
-| ------- | ------------------------------------------------- |
-| **前端**  | Vue 3 + Vuetify + Pinia + Vue Router + TypeScript |
-| **后端**  | Node.js + Express + tRPC + TypeScript             |
-| **架构**  | Monorepo (workspaces) + 中间件模式 + 分层架构              |
-| **通信**  | tRPC（类型安全的 RPC）                                   |
-| **AI**  | OpenAI API                                        |
-| **存储**  | SQLite (better-sqlite3)                           |
-| **机器人** | 飞书 Lark WebSocket                                 |
+## 目录结构
 
-
-## 项目结构
-
-```
-ex/
-├── client/                 # 前端 (Vue 3)
+```text
+EX/
+├── client/                           # 前端管理台 (Vue 3)
 │   ├── src/
-│   │   ├── pages/          # 页面（工作台、报告、项目、设置等）
-│   │   ├── components/     # 报告、认证等组件
-│   │   ├── composables/    # useProjects、useReports 等
-│   │   └── store/          # Pinia 状态
+│   │   ├── pages/                    # 页面（工作台、报告、自动检查、设置等）
+│   │   ├── components/               # 组件（报告渲染、认证等）
+│   │   ├── store/                    # Pinia 状态管理
+│   │   └── server.ts                 # tRPC Client
 │   └── package.json
-│
-├── server/                 # 后端 (Express + tRPC)
+├── server/                           # 后端 API + 飞书机器人
 │   ├── src/
-│   │   ├── app/            # 应用核心
-│   │   │   ├── core/       # App、Context、Types
-│   │   │   ├── middleware/ # 消息处理中间件链
-│   │   │   ├── command/    # 命令系统 (commander)
-│   │   │   ├── fun_call/   # Function Calling (AI 工具)
-│   │   │   ├── services/   # 业务服务
-│   │   │   └── utils/      # 工具函数
-│   │   ├── router/         # tRPC 路由
-│   │   └── utils/          # 数据库、报告等
+│   │   ├── app/
+│   │   │   ├── core/                 # 应用核心抽象（App/Context/Types）
+│   │   │   ├── middleware/           # 消息处理中间件链
+│   │   │   ├── command/              # 飞书命令系统与处理器
+│   │   │   ├── fun_call/             # Function Calling 工具与处理器
+│   │   │   ├── services/             # 自动检查、飞书服务等
+│   │   │   └── utils/                # 业务工具函数
+│   │   ├── router/                   # tRPC 路由（auth/projects/reports/git...）
+│   │   ├── utils/                    # SQLite、报告派生等通用模块
+│   │   ├── config.example.ts         # 配置模板
+│   │   ├── config.ts                 # 本地配置（不应提交真实密钥）
+│   │   └── index.ts                  # HTTP 服务入口 + 机器人启动
+│   ├── public/                       # 前端构建静态资源（构建后）
+│   ├── projects/                     # 受管项目目录（运行时使用）
 │   └── package.json
-│
-├── ARCHITECTURE_CONSTITUTION.md   # 架构宪法
-├── ARCHITECTURE_ANALYSIS.md      # 架构分析
-├── IMPROVEMENT_PLAN.md           # 改进计划
-└── package.json                  # Monorepo 根配置
+├── scripts/build.js                  # 生成 dist/package.json 的部署脚本
+├── docs/                             # 项目文档
+│   └── DEPLOYMENT.md                 # 部署指南
+├── IMPROVEMENT_PLAN.md               # 改进规划
+└── package.json                      # workspace 根脚本
 ```
 
 ## 快速开始
 
-### 环境要求
+### 1) 环境要求
 
-- Node.js 18+
-- npm 或 pnpm
+- Node.js >= 18
+- pnpm >= 8（推荐）
+- Claude Code CLI（用于 `analyzeProject` 相关能力）
+- Codex CLI（用于 `investigateProject` 相关能力）
+- 可访问飞书开放平台与 AI API
 
-### 安装依赖
-
-```bash
-npm install
-```
-
-### 配置环境变量
-
-在 `server` 目录或根目录创建 `.env`，或直接设置环境变量：
+### 2) 安装依赖
 
 ```bash
-# 飞书机器人（必填，用于接收消息）
-LARK_APP_ID=your_app_id
-LARK_APP_SECRET=your_app_secret
-
-# OpenAI（用于 AI 代码审查）
-OPENAI_API_KEY=your_openai_api_key
+pnpm install
 ```
 
-> 飞书应用需在 [开放平台](https://open.feishu.cn/) 创建，并配置消息接收权限与 WebSocket 事件订阅。
+### 3) 安装外部 CLI（必需）
 
-### 启动开发环境
+后端的部分项目分析能力会调用本机 CLI，请确保以下命令可用：
 
 ```bash
-# 同时启动前后端
-npm run dev
-
-# 或分别启动
-npm run dev:server   # 后端 http://localhost:43431
-npm run dev:client   # 前端 Vite 开发服务器
+claude --version
+codex --version
 ```
 
-### 构建生产版本
+若命令不存在，请先按各官方文档完成安装并登录授权，再启动服务。
+
+### 4) 配置后端
+
+建议使用 `server/src/config.example.ts` 作为模板，复制为 `server/src/config.ts` 后填写本地配置。  
+也可以通过环境变量覆盖关键项。
+
+最小必填项：
 
 ```bash
-npm run build
+LARK_APP_ID=your_lark_app_id
+LARK_APP_SECRET=your_lark_app_secret
+OPENAI_API_KEY=your_api_key
 ```
 
-构建后，前端产物会输出到 `server/public/`，由 Express 统一托管。
+可选项（联网搜索能力）：
+
+```bash
+BIGMODEL_API_KEY=your_bigmodel_api_key
+WEB_SEARCH_API_KEY=your_web_search_api_key
+```
+
+> 飞书机器人需在 [飞书开放平台](https://open.feishu.cn/) 完成应用创建、消息事件订阅与权限配置。
+
+### 5) 启动开发模式
+
+```bash
+# 同时启动 client + server
+pnpm run dev
+
+# 分开启动
+pnpm run dev:server
+pnpm run dev:client
+```
+
+默认端口：
+
+- 前端开发服务器：`http://localhost:23421`（可用 `FRONTEND_PORT` 覆盖）
+- 后端服务：`http://localhost:13431`
+
+### 6) 构建生产版本
+
+```bash
+pnpm run build
+```
+
+构建完成后：
+
+- 前端资源输出到 `server/public/`
+- 根目录生成 `dist/package.json`（用于精简部署依赖）
 
 ## 使用说明
 
-### 飞书群内命令示例
+### 飞书命令（常用）
 
-```
-# 检查指定项目的某次提交
-checkcommit <projectId> <commitHash>
+> 实际命令以 `server/src/app/command/handler/` 实现为准，以下是常见能力示例。
 
-# 获取当前群聊 Chat ID
-chatid
+```text
+checkcommit <projectId> <commitHash>     # 审查指定提交
+chatid                                    # 获取当前会话 chatId
 
-# Git 相关
+project list                              # 查看项目
+project add <projectId> [gitRemote]       # 添加项目
+project info <projectId>                  # 查看项目信息
+
+report get <reportId>                     # 获取报告
+report list <projectId>                   # 项目报告列表
+
 git status <projectId>
 git log <projectId> [branch] [limit]
 git branch <projectId>
 git diff <projectId> <commitHash>
-
-# 项目管理
-project list
-project add <name> <path>
-project info <projectId>
-
-# 报告
-report get <reportId>
-report list <projectId>
-report full <reportId>
-
-# 自动检查
-autocheck list
-autocheck add <projectId> <branch> <cron>
 ```
 
-### Web 管理界面
+### Web 管理台
 
-启动后访问 `http://localhost:43431`（或配置的 `BASE_URL`）：
+后端启动后访问：`http://localhost:13431`
 
-- **工作台**：项目选择、统计概览
-- **报告管理**：按项目查看、筛选审查报告
-- **自动检查**：配置定时检查任务
-- **设置**：MAT 等配置
+- 工作台：项目概览、近期状态
+- 报告页：报告检索、筛选与阅读
+- 自动检查：任务配置与开关
+- 设置页：基础偏好配置
 
-## 架构说明
+### 关键 API 能力（tRPC）
 
-### 消息处理流程
+- `auth`：登录
+- `projects`：项目查询/配置/fetch/外部分析能力
+- `reports`：报告查询、筛选、批量生成
+- `git`：仓库操作
+- `autoCheck`：自动检查配置管理
+- `stats`：统计汇总
+- `memory`：AI 记忆快照与清理（鉴权）
 
-```
-飞书消息 → parseMessage → dedupe → rebuttal → command → normalReply(AI)
-```
+## 消息处理链路
 
-- **parseMessage**：解析消息内容
-- **dedupe**：去重
-- **rebuttal**：反驳/引用回复
-- **command**：匹配并执行用户命令
-- **normalReply**：未命中命令时，走 AI Function Calling 或普通回复
-
-### 分层架构
-
-```
-表现层 (Middleware + tRPC Routers)
-    ↓
-应用层 (Command Handlers + Function Call Handlers)
-    ↓
-领域层 (Services + Business Logic)
-    ↓
-基础设施层 (Lark SDK + Git + SQLite + File)
+```text
+parseMessage -> messageContext -> dedupe -> rebuttal -> command -> normalReply(AI)
 ```
 
-## 开发说明
+- `messageContext` 会将原始事件与解析结果注入上下文，供 AI 回复时使用
+- `normalReply` 支持 Function Calling，自动调用工具并回写会话记忆
+
+## 安全建议
+
+- 不要把真实密钥提交到仓库；本地配置请放在忽略文件中
+- 生产环境务必修改默认登录口令与鉴权 token 逻辑
+- 建议将飞书、AI 等密钥通过环境变量注入
+
+## 部署文档
+
+已提供独立部署指南：[`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md)
+
+包含：
+
+- 单机部署步骤
+- PM2 守护配置
+- Nginx 反向代理示例
+- 升级与回滚建议
+- 常见问题排查
+
+## 开发扩展
 
 - 新命令：`server/src/app/command/handler/`
 - 新 Function：`server/src/app/fun_call/functions/`
-- 新服务：`server/src/app/services/`
 - 新中间件：`server/src/app/middleware/`
+- 新路由：`server/src/router/`
 
 ## License
 
