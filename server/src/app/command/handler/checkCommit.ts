@@ -1,5 +1,6 @@
 import { CHECK_COMMIT_TIMEOUT } from '../../config/constants.js';
 import { checkCommit } from '../../utils/claudecli.js';
+// import { checkCommit } from '../../utils/codexcli.js';
 import { setReport } from '../../utils/reportStore.js';
 import { extractReportSections } from '../../utils/reportSections.js';
 import { sendCardMessage } from '../../services/larkService.js';

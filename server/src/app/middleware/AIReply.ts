@@ -81,6 +81,17 @@ async function handleFunctionCall(
             }
             return result;
         }
+
+        // web_search：按名传参，避免可选参数顺序错乱
+        if (functionName === 'web_search') {
+            const result = await handler(
+                functionArgs.search_query,
+                functionArgs.search_engine,
+                functionArgs.count
+            );
+            console.log('web_search result', result);
+            return result;
+        }
         
         // 其他函数：只传递 functionArgs 中的参数，不传递 ctx
         // 因为大部分函数不需要 ctx，多余参数可能导致问题
@@ -154,8 +165,13 @@ export const normalReplyMw: Middleware<Context> = async (ctx) => {
         const historyMessages = convertToOpenAIMessages(history);
 
         // 检查是否有自定义的 system prompt（例如反驳处理）
-        const systemPrompt = ctx.state.customSystemPrompt || TIEBA_OLD_BROTHER_DAILY();
-        
+        let systemPrompt = ctx.state.customSystemPrompt || TIEBA_OLD_BROTHER_DAILY();
+        // 将当前消息完整上下文注入 system，供模型使用
+        if (ctx.state.messageContext) {
+            const contextBlock = `\n\n[当前消息上下文]\n以下为当前飞书消息的完整元数据（会话、发送者、群聊、@ 提及等）：\n\`\`\`json\n${JSON.stringify(ctx.state.messageContext, null, 2)}\n\`\`\``;
+            systemPrompt = systemPrompt + contextBlock;
+        }
+
         // 构建用户消息内容
         let userContent = message.textContent;
         if (ctx.state.rebuttalContext) {

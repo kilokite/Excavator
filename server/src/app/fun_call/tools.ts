@@ -356,6 +356,37 @@ export function getFunctionCallTools() {
         {
             type: "function" as const,
             function: {
+                name: "web_search",
+                description: "搜索互联网，获取实时信息、新闻、事实、文档、教程等。也可以是抽象梗。",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        search_query: {
+                            type: "string",
+                            description: "搜索关键词或问句，建议不超过 70 字。例如：智谱 API 文档、北京今天天气",
+                        },
+                        search_engine: {
+                            type: "string",
+                            description: "搜索引擎：search_std（智谱基础，默认）、search_pro（智谱高阶）、search_pro_sogou（搜狗）、search_pro_quark（夸克）",
+                            enum: ["search_std", "search_pro", "search_pro_sogou", "search_pro_quark"],
+                            default: "search_std",
+                        },
+                        count: {
+                            type: "integer",
+                            description: "返回结果条数，1-50，默认 10",
+                            minimum: 1,
+                            maximum: 50,
+                            default: 10,
+                        },
+                    },
+                    required: ["search_query"],
+                    additionalProperties: false,
+                },
+            },
+        },
+        {
+            type: "function" as const,
+            function: {
                 name: "get_report_full",
                 description: "获取完整的审查报告内容（不截断）。当用户需要查看报告的完整内容时使用此函数。",
                 parameters: {

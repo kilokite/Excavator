@@ -4,6 +4,7 @@
  */
 import * as lark from '@larksuiteoapi/node-sdk';
 import { checkCommit } from '../utils/claudecli.js';
+// import { checkCommit } from '../utils/codexcli.js';
 import { setReport } from '../utils/reportStore.js';
 import { CHECK_COMMIT_TIMEOUT, DEFAULT_FRONTEND_URL } from '../config/constants.js';
 import { sendCardMessage, sendTextMessage } from './larkService.js';

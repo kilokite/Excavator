@@ -9,6 +9,7 @@ import { App } from './core/app.js';
 import { createContext } from './core/context.js';
 import type { MessageData } from './core/types.js';
 import { parseMessageMw } from './middleware/parseMessage.js';
+import { messageContextMw } from './middleware/messageContext.js';
 import { dedupeMw } from './middleware/dedupe.js';
 import { rebuttalMw } from './middleware/rebuttal.js';
 import { commandMw } from './middleware/command.js';
@@ -43,6 +44,7 @@ function main() {
     const app = new App<ReturnType<typeof createContext>>();
     app
         .use(parseMessageMw)
+        .use(messageContextMw)
         .use(dedupeMw)
         .use(rebuttalMw)
         .use(commandMw)

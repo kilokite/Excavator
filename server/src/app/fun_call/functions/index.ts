@@ -14,6 +14,7 @@ import {
     getAllReportsFunction,
     getReportFullFunction,
 } from './report.js';
+import { webSearchFunction } from './webSearch.js';
 
 export { getGitLog, getLatestCommit, getGitStatus, getGitBranches } from './git.js';
 export { getProjectList, getProjectInfo, searchProjectsByKeyword } from './project.js';
@@ -27,6 +28,7 @@ export {
     getAllReportsFunction,
     getReportFullFunction,
 } from './report.js';
+export { webSearchFunction } from './webSearch.js';
 
 /**
  * Function call 函数映射表
@@ -50,6 +52,7 @@ export const functionHandlers: Record<string, (...args: any[]) => Promise<string
     get_project_reports: getProjectReportsFunction,
     get_all_reports: getAllReportsFunction,
     get_report_full: getReportFullFunction,
+    web_search: webSearchFunction,
 };
 
 

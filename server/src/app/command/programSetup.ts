@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { getCommandContext } from './commandContext.js';
 import { handleCheckCommit } from './handler/checkCommit.js';
 import { handleChatId } from './handler/chatId.js';
+import { handleUserId } from './handler/userId.js';
 import { handleHelp } from './handler/help.js';
 import {
     handleGitStatus,
@@ -35,6 +36,8 @@ import {
     handleReportListAll,
     handleReportFull,
 } from './handler/report.js';
+import { handleWebSearch } from './handler/webSearch.js';
+import type { SearchEngine } from './tools/webSearch.js';
 
 /**
  * 创建并配置 Command 实例
@@ -68,6 +71,14 @@ export function createProgram(): Command {
         });
 
     program
+        .command('userid')
+        .alias('userId')
+        .description('获取当前用户 ID')
+        .action(async () => {
+            await handleUserId();
+        });
+
+    program
         .command('help')
         .alias('h')
         .description('显示帮助信息')
@@ -86,6 +97,9 @@ export function createProgram(): Command {
 
     // 注册报告查询命令
     registerReportCommands(program);
+
+    // 网络搜索（智谱 Web Search API）
+    registerWebSearchCommands(program);
 
     return program;
 }
@@ -356,6 +370,30 @@ function registerReportCommands(program: Command): void {
         .description('获取完整的审查报告内容（不截断）')
         .action(async (reportId: string) => {
             await handleReportFull(reportId);
+        });
+}
+
+function registerWebSearchCommands(program: Command): void {
+    const engines: SearchEngine[] = ['search_std', 'search_pro', 'search_pro_sogou', 'search_pro_quark'];
+    program
+        .command('websearch <query...>')
+        .alias('search')
+        .alias('ws')
+        .description('网络搜索（智谱 Web Search API）')
+        .option('-e, --engine <engine>', `搜索引擎: ${engines.join(' | ')}`, 'search_std')
+        .option('-c, --count <n>', '返回条数 1-50', '10')
+        .action(async (queryParts: string[], options: { engine?: string; count?: string }) => {
+            const query = queryParts.join(' ').trim();
+            if (!query) {
+                const ctx = getCommandContext();
+                await ctx.replyText('请提供搜索关键词，例如：websearch 智谱 API');
+                return;
+            }
+            const engine = engines.includes(options.engine as SearchEngine)
+                ? (options.engine as SearchEngine)
+                : 'search_std';
+            const count = options.count ? parseInt(options.count, 10) : undefined;
+            await handleWebSearch(query, { engine, count });
         });
 }
 
